@@ -18,10 +18,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3 
 
-      - name: Set up JDK 21
+      - name: Set up JDK 17
         uses: actions/setup-java@v4.0.0
         with:
-          java-version: '21'  
+          java-version: '17'  
           distribution: 'temurin'  
 
       - name: Setup Chrome with extra capabilities
@@ -44,9 +44,4 @@ jobs:
           name: cucumber reports
           path: target/index.html  
 
-      - name: Deploy to GitHub Pages
-        if: always()
-        uses: peaceiris/actions-gh-pages@v4.0.0
-        with:
-          personal_token: ${{ secrets.PAT }}
-          publish_dir: target
+
