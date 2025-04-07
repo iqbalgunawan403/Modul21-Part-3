@@ -2,38 +2,44 @@ name: Web UI Automation Test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
-  run-automation-test:
-    runs-on: ubuntu-latest
+  automation-JUnit:
+    runs-on: ubuntu-latest  
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        
-     # setup browser
-    - name: Setup Chrome
-      uses: browser-actions/setup-chrome@v1.4.0
+      - uses: actions/checkout@v3  
 
-    # setup gradle
-    - name: Setup Gradle
-      run: chmod +x gradlew
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4.0.0
+        with:
+          java-version: '17'  
+          distribution: 'temurin' 
 
-    # execute test script
-    - name: Execute Test
-      run: ./gradlew cucumber
+      - name: Setup Chrome with extra capabilities
+        uses: browser-actions/setup-chrome@v1.4.0
+        with:
+          chrome-version: latest 
 
-    # upload artifact
-    - name: 'Upload Artifact'
-      uses: actions/upload-artifact@v3
-      with:
-        name: Cucumber_Reports
-        path: reports
-        retention-days: 5
+      - name: Build with Gradle
+        run: |
+          chmod +x gradlew  
+          ./gradlew build  
+
+      - name: Run Tests
+        run: ./gradlew clean test  
+
+      - name: Archive test results
+        uses: actions/upload-artifact@v4.3.0
+        if: always() 
+        with:
+          name: cucumber reports
+          path: target/index.html 
