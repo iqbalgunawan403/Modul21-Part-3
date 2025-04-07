@@ -1,0 +1,53 @@
+name: Web UI Automation Test
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  automation-JUnit:
+    runs-on: ubuntu-latest  
+
+    steps:
+      - uses: actions/checkout@v3  
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4.0.0
+        with:
+          java-version: '17'  
+          distribution: 'temurin' 
+
+      - name: Setup Chrome with extra capabilities
+        uses: browser-actions/setup-chrome@v1.4.0
+        with:
+          chrome-version: latest 
+
+      - name: Build with Gradle
+        run: |
+          chmod +x gradlew  
+          ./gradlew build  
+
+      - name: Run Tests
+        run: ./gradlew clean test  
+
+      - name: Archive test results
+        uses: actions/upload-artifact@v4.3.0
+        if: always() 
+        with:
+          name: cucumber reports
+          path: target/index.html 
+
+       # Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v4.0.0
+        with:
+          personal_token: ${{ secrets.PAT }}
+          publish_dir: target
